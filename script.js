@@ -26,29 +26,17 @@ function renderizar() {
   container.innerHTML = "";
   const diasOrdenados = Object.keys(dados).sort().reverse();
 
-  /* ===== TOTAIS GERAIS ===== */
-
-  const todosRegistros = Object.values(dados).flat();
-
-  const totalAcordos = todosRegistros.length;
-
-  const totalComPagamento = todosRegistros.filter(r => (r.valorPago || 0) > 0).length;
-
-  const totalTotalmentePagos = todosRegistros.filter(r => (r.valorPago || 0) >= r.valor).length;
-
-  const totalValor = todosRegistros.reduce((s, r) => s + r.valor, 0);
-
-  const totalPago = todosRegistros.reduce((s, r) => s + (r.valorPago || 0), 0);
+  const totalAcordos = Object.values(dados).reduce((sum, regs) => sum + regs.length, 0);
+  const totalValor = Object.values(dados).reduce((sum, regs) => sum + regs.reduce((s, r) => s + r.valor, 0), 0);
+  const totalPago = Object.values(dados).reduce((sum, regs) => sum + regs.reduce((s, r) => s + (r.valorPago || 0), 0), 0);
 
   const resumo = document.getElementById('resumoGeral');
   if(resumo) {
     resumo.innerHTML = `
-      <span>📋 <strong>${totalAcordos} / ${totalComPagamento} / ${totalTotalmentePagos}</strong> P/V/Q</span>
-      <span>💰 <strong>R$ ${totalValor.toFixed(2).replace('.',',')} / ${totalPago.toFixed(2).replace('.',',')}</strong></span>
+      <span>📋 <strong>${totalAcordos}</strong> acordos no total</span>
+      <span>💰 <strong>R$ ${totalValor.toFixed(2).replace('.',',')} / ${totalPago.toFixed(2).replace('.',',')}</strong> Total/Pago</span>
     `;
   }
-
-  /* ===== RESTANTE DO CÓDIGO CONTINUA IGUAL ===== */
 
   diasOrdenados.forEach(dia => {
 
@@ -68,10 +56,12 @@ function renderizar() {
       <span>R$ ${totalDia.toFixed(2).replace('.',',')} / ${totalPagoDia.toFixed(2).replace('.',',')} | ${registros.length} acordos</span>
     `;
 
+    /* ===== WRAPPER ANIMÁVEL ===== */
     const tabelaWrapper = document.createElement("div");
     tabelaWrapper.classList.add("dia-tabela");
     if (diasAbertos.has(dia)) tabelaWrapper.classList.add("aberto");
 
+    /* ===== TABELA REAL ===== */
     const tabela = document.createElement("table");
 
     tabela.innerHTML = `
@@ -164,8 +154,15 @@ function renderizar() {
 
       acoesCell.appendChild(btnExcluir);
 
+      if(reg.novo) {
+        row.classList.add("novo-registro");
+        delete reg.novo;
+        salvarDados();
+      }
+
     });
 
+    /* ===== CLICK SUAVE ===== */
     header.onclick = function(){
       tabelaWrapper.classList.toggle("aberto");
       header.classList.toggle("aberto");
@@ -184,6 +181,63 @@ function renderizar() {
 
   });
 }
+
+form.addEventListener('submit', function(e){
+  e.preventDefault();
+  const linha = inputLinha.value.trim();
+  if(!linha) return;
+
+  const {dia: diaHoje} = getDataHora();
+
+  const linhaSemDatas = linha
+    .replace(/\d{1,2}\/\d{1,2}(?:\/\d{2,4})?/g, '')
+    .replace(/\d+x/gi, '');
+
+  const valorMatch = linhaSemDatas.match(/R?\$?\s?(\d+(?:[\.,]\d{3})*[\.,]\d{2}|\d+)/);
+  if(!valorMatch) return alert("Valor inválido");
+
+  let valorStr = valorMatch[1].replace(/\./g,'').replace(',','.');
+  const valor = parseFloat(valorStr);
+
+  const parcelasMatch = linha.match(/(\d+)x/i);
+  const parcelas = parcelasMatch ? parcelasMatch[1]+"x" : "";
+
+  const todasDatas = [...linha.matchAll(/(\d{1,2}\/\d{1,2})(?:\/\d{2,4})?/g)]
+    .map(m => m[0].split('/').slice(0,2).join('/'));
+
+  if(todasDatas.length === 0) return alert("Data inválida");
+
+  let dataAcordo = todasDatas.length >= 2 ? todasDatas[0] : diaHoje;
+  let dataFinal  = todasDatas.length >= 2 ? todasDatas[1] : todasDatas[0];
+
+  const pagamentoMatch = linha.match(/(pix|boleto|deb|débito|debito em conta|parc|parcial|parcelado)/i);
+  if(!pagamentoMatch) return alert("Pagamento inválido");
+  const pagamento = pagamentoMatch[1];
+
+  const idMatch = linha.match(/\b(\d{6,})\b/);
+  if(!idMatch) return alert("ID inválido");
+  const id = idMatch[0];
+
+  if(!dados[dataAcordo]) dados[dataAcordo] = [];
+
+  dados[dataAcordo].push({
+    dataAcordo,
+    valor,
+    valorPago: 0,
+    parcelas,
+    dataFinal,
+    pagamento,
+    id,
+    novo: true
+  });
+
+  diasAbertos.add(dataAcordo);
+  salvarDados();
+  renderizar();
+
+  inputLinha.value = "";
+  inputLinha.focus();
+});
 
 window.onload = function(){
   renderizar();
