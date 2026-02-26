@@ -1,0 +1,231 @@
+/* ===== BODY E FONTES ===== */
+body {
+  background-color: #121212;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  color: #fff;
+}
+ /* --total--*/
+#resumoGeral {
+  display: flex;
+  justify-content: space-between;
+  width: 60%;
+  max-width: 950px;
+  background-color: #1f1f1f;
+  border: 1px solid #00ffcc33;
+  border-radius: 12px;
+  padding: 14px 24px;
+  margin-bottom: 20px;
+  margin-top: -10px;
+  font-size: 0.95em;
+  color: #fff;
+  box-sizing: border-box;
+}
+
+#resumoGeral strong {
+  color: #00ffcc;
+} 
+
+/* ===== TÍTULO ===== */
+h1 {
+  color: #00ffcc;
+  text-align: center;
+  animation: pulse 3s ease-in-out infinite;
+  margin-bottom: 40px;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* ===== FORMULÁRIO ===== */
+form {
+  display: flex;
+  width: 60%;
+  max-width: 900px;
+  margin-bottom: 25px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+input {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  font-size: 1em;
+  background-color: #1f1f1f;
+  color: #fff;
+}
+
+input::placeholder {
+  color: #aaa;
+}
+
+button {
+  padding: 14px 20px;
+  border: none;
+  background: #00ffcc;
+  color: #121212;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background-color: #00d9b0;
+  transform: scale(1.03);
+}
+
+/* ===== BLOCO DO DIA ===== */
+.dia-bloco {
+  width: 100%; /* ou o valor que quiser */
+  max-width: 950px;
+  margin: 0 auto 15px auto;
+  border-radius: 12px;
+  display: center;
+}
+
+/* ===== CABEÇALHO DO DIA ===== */
+.dia-header {
+  width: 730px;
+  height: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1f1f1f;
+  padding: 14px 20px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1em;
+  transition: 0.3s;
+  border-radius: 12px 12px 0 0;
+}
+
+.dia-header:hover {
+  background-color: #2c2c2c;
+}
+
+.dia-header::after {
+  content: "▼";
+  transition: transform 0.3s;
+  font-size: 0.9em;
+}
+
+.dia-header.aberto::after {
+  transform: rotate(-180deg);
+  content: "▲";
+}
+
+/* ===== TABELA DO DIA ===== */
+.dia-tabela {
+  width: 100%;
+  display: none;
+  background: #1f1f1f;
+  color: #fff;
+  border-radius: 0 0 12px 12px;
+}
+
+.dia-tabela.aberto {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+.dia-tabela.fechando {
+  display: block;
+  animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-8px); }
+}
+
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+th, td {
+  border: 1px solid #333;
+  padding: 10px;
+  font-size: 0.9em;
+}
+
+th {
+  background-color: #2c2c2c;
+  color: #00ffcc;
+}
+
+/* ===== BOTÃO EXCLUIR ===== */
+.btn-excluir {
+  background-color: #ff4d4d;
+  color: #121212;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.btn-excluir:hover {
+  background-color: #e60000;
+  transform: scale(1.05);
+}
+
+/* ===== RESPONSIVO ===== */
+@media (max-width: 600px) {
+  form {
+    flex-direction: column;
+  }
+
+  input, button {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+
+  .dia-header {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  th, td {
+    font-size: 0.75rem;
+    padding: 6px;
+  }
+}
+
+/* ===== ANIMAÇÃO DE NOVO REGISTRO ===== */
+@keyframes slideUpFade {
+  0% {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(-10px);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.novo-registro {
+  animation: slideUpFade 0.5s ease forwards;
+}
