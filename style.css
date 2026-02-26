@@ -93,8 +93,7 @@ button:hover {
 
 /* ===== CABEÇALHO DO DIA ===== */
 .dia-header {
-  width: 730px;
-  height: 13px;
+  width: 733px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -125,16 +124,17 @@ button:hover {
 /* ===== TABELA DO DIA ===== */
 .dia-tabela {
   width: 100%;
-  max-height: 0;
   overflow: hidden;
   background: #1f1f1f;
   color: #fff;
-  border-radius: 0 0 12px 12px;
+  max-height: 0;
   opacity: 0;
   transition: max-height 0.3s ease, opacity 0.3s ease;
+  display: none; /* 👈 ESSENCIAL */
 }
 
 .dia-tabela.aberto {
+  display: table; /* volta a existir */
   max-height: 2000px;
   opacity: 1;
 }
@@ -148,6 +148,7 @@ table {
   width: 100%;
   border-collapse: collapse;
   text-align: center;
+  border-spacing: 0;
 }
 
 th, td {
@@ -175,12 +176,13 @@ th {
 .btn-pagar {
   background-color: #00ffcc;
   color: #121212;
-  padding: 6px 14px;
+  padding: 6px 9px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
   transition: 0.3s;
+  margin-right: 4px;
 }
 
 .btn-pagar:hover {
@@ -198,6 +200,7 @@ th {
   cursor: pointer;
   font-weight: bold;
   transition: 0.3s;
+  margin-left: 4px;
 }
 
 .btn-excluir:hover {
@@ -205,23 +208,9 @@ th {
   transform: scale(1.05);
 }
 
-.btn-pagar{
-  background-color: #00ffcc;
-  color: #121212;
-  padding: 6px 9px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: 0.3s;
-}
-
 /* ===== COLUNA DE AÇÕES ===== */
 td:last-child {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  border: none;
+  white-space: nowrap;
 }
 
 /* ===== RESPONSIVO ===== */
