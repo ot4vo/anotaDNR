@@ -26,15 +26,19 @@ function renderizar() {
   container.innerHTML = "";
   const diasOrdenados = Object.keys(dados).sort().reverse();
 
-  const totalAcordos = Object.values(dados).reduce((sum, regs) => sum + regs.length, 0);
-  const totalValor = Object.values(dados).reduce((sum, regs) => sum + regs.reduce((s, r) => s + r.valor, 0), 0);
-  const totalPago = Object.values(dados).reduce((sum, regs) => sum + regs.reduce((s, r) => s + (r.valorPago || 0), 0), 0);
+  /* ===== TOTAIS GERAIS ===== */
+  const todosRegistros = Object.values(dados).flat();
+  const totalAcordos = todosRegistros.length;
+  const totalComPagamento = todosRegistros.filter(r => (r.valorPago || 0) > 0).length;
+  const totalTotalmentePagos = todosRegistros.filter(r => (r.valorPago || 0) >= r.valor).length;
+  const totalValor = todosRegistros.reduce((s, r) => s + r.valor, 0);
+  const totalPago = todosRegistros.reduce((s, r) => s + (r.valorPago || 0), 0);
 
   const resumo = document.getElementById('resumoGeral');
   if(resumo) {
     resumo.innerHTML = `
-      <span>📋 <strong>${totalAcordos}</strong> acordos no total</span>
-      <span>💰 <strong>R$ ${totalValor.toFixed(2).replace('.',',')} / ${totalPago.toFixed(2).replace('.',',')}</strong> Total/Pago</span>
+      <span>📋 <strong>${totalAcordos} / ${totalComPagamento} / ${totalTotalmentePagos}</strong> T/V/Q</span>
+      <span>💰 <strong>R$ ${totalValor.toFixed(2).replace('.',',')} / ${totalPago.toFixed(2).replace('.',',')}</strong></span>
     `;
   }
 
