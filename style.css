@@ -22,6 +22,7 @@ body {
   border-radius: 12px;
   padding: 14px 24px;
   margin-bottom: 20px;
+  margin-top: -10px;
   font-size: 0.95em;
   color: #fff;
   box-sizing: border-box;
@@ -87,7 +88,7 @@ button:hover {
 .dia-bloco {
   width: 100%;
   max-width: 950px;
-  margin: 0 auto 15px auto;
+  margin: 0 auto 10px auto;
   border-radius: 12px;
 }
 
@@ -103,7 +104,13 @@ button:hover {
   font-weight: bold;
   font-size: 1em;
   transition: 0.3s;
+  border-radius: 12px;
+  margin-bottom: 0;
+}
+
+.dia-header.aberto {
   border-radius: 12px 12px 0 0;
+  margin-bottom: 0;
 }
 
 .dia-header:hover {
@@ -129,12 +136,11 @@ button:hover {
   color: #fff;
   max-height: 0;
   opacity: 0;
-  transition: max-height 0.3s ease, opacity 0.3s ease;
-  display: none; /* 👈 ESSENCIAL */
+  transition: max-height 0.35s ease-out, opacity 0.35s ease-out;
+  border-radius: 0 0 12px 12px;
 }
 
 .dia-tabela.aberto {
-  display: table; /* volta a existir */
   max-height: 2000px;
   opacity: 1;
 }
@@ -142,6 +148,7 @@ button:hover {
 .dia-tabela.fechando {
   max-height: 0;
   opacity: 0;
+  transition: max-height 0.35s ease-in, opacity 0.35s ease-in;
 }
 
 table {
