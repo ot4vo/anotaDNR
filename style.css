@@ -10,7 +10,8 @@ body {
   padding: 20px;
   color: #fff;
 }
- /* --total--*/
+
+/* --total-- */
 #resumoGeral {
   display: flex;
   justify-content: space-between;
@@ -21,7 +22,6 @@ body {
   border-radius: 12px;
   padding: 14px 24px;
   margin-bottom: 20px;
-  margin-top: -10px;
   font-size: 0.95em;
   color: #fff;
   box-sizing: border-box;
@@ -29,7 +29,7 @@ body {
 
 #resumoGeral strong {
   color: #00ffcc;
-} 
+}
 
 /* ===== TÍTULO ===== */
 h1 {
@@ -85,11 +85,10 @@ button:hover {
 
 /* ===== BLOCO DO DIA ===== */
 .dia-bloco {
-  width: 100%; /* ou o valor que quiser */
+  width: 100%;
   max-width: 950px;
   margin: 0 auto 15px auto;
   border-radius: 12px;
-  display: center;
 }
 
 /* ===== CABEÇALHO DO DIA ===== */
@@ -126,32 +125,24 @@ button:hover {
 /* ===== TABELA DO DIA ===== */
 .dia-tabela {
   width: 100%;
-  display: none;
+  max-height: 0;
+  overflow: hidden;
   background: #1f1f1f;
   color: #fff;
   border-radius: 0 0 12px 12px;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
 }
 
 .dia-tabela.aberto {
-  display: block;
-  animation: fadeIn 0.3s ease;
+  max-height: 2000px;
+  opacity: 1;
 }
 
 .dia-tabela.fechando {
-  display: block;
-  animation: fadeOut 0.3s ease forwards;
+  max-height: 0;
+  opacity: 0;
 }
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeOut {
-  from { opacity: 1; transform: translateY(0); }
-  to   { opacity: 0; transform: translateY(-8px); }
-}
-
 
 table {
   width: 100%;
@@ -170,6 +161,33 @@ th {
   color: #00ffcc;
 }
 
+/* ===== ACORDO TOTALMENTE PAGO ===== */
+.acordo-pago {
+  background-color: #00ffcc22 !important;
+  border-left: 4px solid #00ffcc !important;
+}
+
+.acordo-pago td {
+  color: #00ffcc !important;
+}
+
+/* ===== BOTÃO PAGAR ===== */
+.btn-pagar {
+  background-color: #00ffcc;
+  color: #121212;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.btn-pagar:hover {
+  background-color: #00d9b0;
+  transform: scale(1.05);
+}
+
 /* ===== BOTÃO EXCLUIR ===== */
 .btn-excluir {
   background-color: #ff4d4d;
@@ -185,6 +203,14 @@ th {
 .btn-excluir:hover {
   background-color: #e60000;
   transform: scale(1.05);
+}
+
+/* ===== COLUNA DE AÇÕES ===== */
+td:last-child {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  border: none;
 }
 
 /* ===== RESPONSIVO ===== */

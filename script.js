@@ -29,18 +29,20 @@ function renderizar() {
   // ── TOTAIS GERAIS ──
   const totalAcordos = Object.values(dados).reduce((sum, regs) => sum + regs.length, 0);
   const totalValor = Object.values(dados).reduce((sum, regs) => sum + regs.reduce((s, r) => s + r.valor, 0), 0);
+  const totalPago = Object.values(dados).reduce((sum, regs) => sum + regs.reduce((s, r) => s + (r.valorPago || 0), 0), 0);
 
   const resumo = document.getElementById('resumoGeral');
   if(resumo) {
     resumo.innerHTML = `
       <span>📋 <strong>${totalAcordos}</strong> acordos no total</span>
-      <span>💰 <strong>R$ ${totalValor.toFixed(2).replace('.',',')}</strong> no total</span>
+      <span>💰 <strong>R$ ${totalValor.toFixed(2).replace('.',',')} / ${totalPago.toFixed(2).replace('.',',')}</strong> Total/Pago</span>
     `;
   }
 
   diasOrdenados.forEach(dia => {
     const registros = dados[dia];
     let totalDia = registros.reduce((sum,r)=>sum+r.valor,0);
+    let totalPagoDia = registros.reduce((sum,r)=>sum+(r.valorPago || 0),0);
 
     const bloco = document.createElement("div");
     bloco.classList.add("dia-bloco");
@@ -50,7 +52,7 @@ function renderizar() {
     if (diasAbertos.has(dia)) header.classList.add("aberto");
     header.innerHTML = `
       <span>${dia}</span>
-      <span>R$ ${totalDia.toFixed(2).replace('.',',')} | ${registros.length} acordos</span>
+      <span>R$ ${totalDia.toFixed(2).replace('.',',')} / ${totalPagoDia.toFixed(2).replace('.',',')} | ${registros.length} acordos</span>
     `;
 
     const tabela = document.createElement("table");
@@ -60,7 +62,6 @@ function renderizar() {
     tabela.innerHTML = `
       <thead>
         <tr>
-          <th>Data Registro</th>
           <th>Data Acordo</th>
           <th>Valor</th>
           <th>Parcelas</th>
@@ -76,24 +77,32 @@ function renderizar() {
     const tbody = tabela.querySelector("tbody");
     registros.forEach((reg, index) => {
       const row = tbody.insertRow();
-      row.insertCell(0).innerText = reg.dataRegistro;
-      row.insertCell(1).innerText = reg.dataAcordo || "-";
+      
+      // Verifica se o acordo está totalmente pago
+      const valorPago = reg.valorPago || 0;
+      const acordoPago = valorPago >= reg.valor;
+      
+      // Se estiver pago, adiciona classe especial
+      if(acordoPago) {
+        row.classList.add("acordo-pago");
+      }
+      
+      row.insertCell(0).innerText = reg.dataAcordo || "-";
       
       // Exibir valor com formato total/pago
-      const valorPago = reg.valorPago || 0;
-      const valorCell = row.insertCell(2);
+      const valorCell = row.insertCell(1);
       if(valorPago > 0) {
         valorCell.innerHTML = `R$ ${reg.valor.toFixed(2).replace('.',',')} / <span style="color: #00ffcc;">${valorPago.toFixed(2).replace('.',',')}</span>`;
       } else {
         valorCell.innerText = `R$ ${reg.valor.toFixed(2).replace('.',',')}`;
       }
       
-      row.insertCell(3).innerText = reg.parcelas;
-      row.insertCell(4).innerText = reg.dataFinal;
-      row.insertCell(5).innerText = reg.pagamento;
-      row.insertCell(6).innerText = reg.id;
+      row.insertCell(2).innerText = reg.parcelas;
+      row.insertCell(3).innerText = reg.dataFinal;
+      row.insertCell(4).innerText = reg.pagamento;
+      row.insertCell(5).innerText = reg.id;
 
-      const acoesCell = row.insertCell(7);
+      const acoesCell = row.insertCell(6);
 
       // Botão Pagar
       const btnPagar = document.createElement("button");
@@ -223,7 +232,6 @@ form.addEventListener('submit', function(e){
   const diaAgrupador = dataAcordo || diaHoje;
   if(!dados[diaAgrupador]) dados[diaAgrupador] = [];
   dados[diaAgrupador].push({ 
-    dataRegistro: dataHora, 
     dataAcordo, 
     valor, 
     valorPago: 0,
