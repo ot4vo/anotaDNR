@@ -28,14 +28,15 @@ function renderizar() {
 
   // ── TOTAIS GERAIS ──
   const totalAcordos = Object.values(dados).reduce((sum, regs) => sum + regs.length, 0);
+  const acordosPagos = Object.values(dados).reduce((sum, regs) => sum + regs.filter(r => (r.valorPago || 0) > 0).length, 0);
   const totalValor = Object.values(dados).reduce((sum, regs) => sum + regs.reduce((s, r) => s + r.valor, 0), 0);
   const totalPago = Object.values(dados).reduce((sum, regs) => sum + regs.reduce((s, r) => s + (r.valorPago || 0), 0), 0);
 
   const resumo = document.getElementById('resumoGeral');
   if(resumo) {
     resumo.innerHTML = `
-      <span>📋 <strong>${totalAcordos}</strong> acordos no total</span>
-      <span>💰 <strong>R$ ${totalValor.toFixed(2).replace('.',',')} / ${totalPago.toFixed(2).replace('.',',')}</strong> Total/Pago</span>
+      <span>📋 <strong>${totalAcordos} / ${acordosPagos}</strong></span>
+      <span>💰 <strong>R$ ${totalValor.toFixed(2).replace('.',',')} / ${totalPago.toFixed(2).replace('.',',')}</strong></span>
     `;
   }
 
@@ -110,10 +111,20 @@ function renderizar() {
       btnPagar.classList.add("btn-pagar");
       btnPagar.onclick = function(e){
         e.stopPropagation();
-        const valorPagar = prompt("Quanto foi pago? (use - para subtrair, ex: -100)", "0");
+        const valorPagar = prompt("Quanto foi pago? (use - para subtrair, 'tudo' para valor total)", "0");
         if(valorPagar !== null && valorPagar.trim() !== "") {
+          let valorStr = valorPagar.trim().toLowerCase();
+          
+          // Se digitar "tudo", paga o valor total
+          if(valorStr === "tudo") {
+            reg.valorPago = reg.valor;
+            salvarDados();
+            renderizar();
+            return;
+          }
+          
           // Remove espaços e substitui vírgula por ponto
-          let valorStr = valorPagar.trim().replace(',', '.');
+          valorStr = valorStr.replace(',', '.');
           let valorNum = parseFloat(valorStr);
           
           if(!isNaN(valorNum)) {
