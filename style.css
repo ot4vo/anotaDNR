@@ -33,17 +33,93 @@ body {
 #resumoGeral .cor-valor    { color: #00ffcc; } 
 
 /* ===== TÍTULO ===== */
+:root {
+  --bg:         #0c0c10;
+  --surface:    #13131a;
+  --surface2:   #1a1a24;
+  --surface3:   #20202c;
+  --border:     #ffffff08;
+  --border-mid: #ffffff12;
+  --accent:     #00ffcc;
+  --accent-dim: #00ffcc55;
+  --accent-glow:#00ffcc18;
+  --red:        #ff4d4d;
+  --yellow:     #ffd700;
+  --text:       #e2e2ee;
+  --text-muted: #55556a;
+  --text-soft:  #9898b0;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 h1 {
-  color: #00ffcc;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
   text-align: center;
-  animation: pulse 3s ease-in-out infinite;
-  margin-bottom: 40px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 50px;
+  position: relative;
+  background: linear-gradient(135deg, #00ffcc 0%, #00d9b0 40%, #ffffff 60%, #00ffcc 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite, glowPulse 3s ease-in-out infinite;
+}
+
+h1::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #00ffcc, #00d9b0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: blur(12px);
+  opacity: 0.5;
+  animation: glowPulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+h1::after {
+  content: '';
+  display: block;
+  height: 2px;
+  width: 60px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  border-radius: 2px;
+  margin: 10px auto 0;
+  box-shadow: 0 0 16px var(--accent), 0 0 32px #00ffcc60;
+  animation: lineGlow 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
 }
 
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.05); }
   100% { transform: scale(1); }
+}
+
+#exemplo {
+  width: min(80%, 900px);
+  color: #00ffcc8f;
+  font-size: 0.7em;
+  font-family: 'Arial', monospace;
+  letter-spacing: 0.05em;
+  margin-top: -29px;
+  margin-bottom: 0px;
+  padding-left: 2px;
+  transition: color 0.3s;
+}
+
+#exemplo:hover {
+  color: #00ffcc99;
 }
 
 /* ===== FORMULÁRIO ===== */
@@ -97,8 +173,8 @@ button:hover {
 
 /* ===== CABEÇALHO DO DIA ===== */
 .dia-header {
-  width: 730px;
-  height: 13px;
+  width: 670px;
+  height: 35px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -158,31 +234,39 @@ button:hover {
 
 table {
   width: 100%;
+  min-width: 540px; /* evita quebra feia, scroll cuida do resto */
   border-collapse: collapse;
   text-align: center;
 }
 
 th, td {
-  border: 1px solid #333;
-  padding: 10px;
-  font-size: 0.9em;
+  border: 1px solid #2a2a2a;
+  padding: 9px 10px;
+  font-size: 0.85em;
+  white-space: nowrap;
 }
 
 th {
-  background-color: #2c2c2c;
+  background-color: #252525;
   color: #00ffcc;
+  font-size: 0.8em;
+  letter-spacing: 0.03em;
 }
+
+tbody tr:hover td { background-color: #222; }
 
 /* ===== BOTÃO EXCLUIR ===== */
 .btn-excluir {
+  font-size: 12px;
   background-color: #ff4d4d;
   color: #121212;
-  padding: 6px 9px;
+  padding: 6px 8px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
   transition: 0.3s;
+  width: 55px;
 }
 
 .btn-excluir:hover {

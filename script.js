@@ -10,9 +10,9 @@ function salvarDados() {
 
 function getDataHora() {
   const agora = new Date();
-  const dia = String(agora.getDate()).padStart(2,'0');
-  const mes = String(agora.getMonth()+1).padStart(2,'0');
-  const hora = String(agora.getHours()).padStart(2,'0');
+  const dia    = String(agora.getDate()).padStart(2,'0');
+  const mes    = String(agora.getMonth()+1).padStart(2,'0');
+  const hora   = String(agora.getHours()).padStart(2,'0');
   const minuto = String(agora.getMinutes()).padStart(2,'0');
   return {
     dia: `${dia}/${mes}`,
@@ -24,25 +24,25 @@ function renderizar() {
   container.innerHTML = "";
   const diasOrdenados = Object.keys(dados).sort().reverse();
 
-  const todosRegistros = Object.values(dados).flat();
-  const totalAcordos = todosRegistros.length;
-  const totalComPagamento = todosRegistros.filter(r => (r.valorPago || 0) > 0).length;
-  const totalTotalmentePagos = todosRegistros.filter(r => (r.valorPago || 0) >= r.valor).length;
-  const totalValor = todosRegistros.reduce((s, r) => s + r.valor, 0);
-  const totalPago = todosRegistros.reduce((s, r) => s + (r.valorPago || 0), 0);
+  const todosRegistros      = Object.values(dados).flat();
+  const totalAcordos        = todosRegistros.length;
+  const totalTotalmentePagos= todosRegistros.filter(r => (r.valorPago || 0) >= r.valor && r.valor > 0).length;
+  const totalComPagamento   = todosRegistros.filter(r => (r.valorPago || 0) > 0 && (r.valorPago || 0) < r.valor).length;
+  const totalValor          = todosRegistros.reduce((s, r) => s + r.valor, 0);
+  const totalPago           = todosRegistros.reduce((s, r) => s + (r.valorPago || 0), 0);
 
   const resumo = document.getElementById('resumoGeral');
-  if(resumo) {
+  if (resumo) {
     resumo.innerHTML = `
       <span>📋 <strong class="cor-total">${totalAcordos}</strong> / <strong class="cor-pagamento">${totalComPagamento}</strong> / <strong class="cor-quitado">${totalTotalmentePagos}</strong></span>
-      <span>💰 <strong class="cor-valor">R$ ${totalValor.toFixed(2).replace('.',',')} / ${totalPago.toFixed(2).replace('.',',')}</strong></span>
+      <span>💰 <strong class="cor-total">R$ ${totalValor.toFixed(2).replace('.',',')}</strong> / <strong class="cor-quitado">R$ ${totalPago.toFixed(2).replace('.',',')}</strong></span>
     `;
   }
 
   diasOrdenados.forEach(dia => {
-    const registros = dados[dia];
-    let totalDia = registros.reduce((sum,r)=>sum+r.valor,0);
-    let totalPagoDia = registros.reduce((sum,r)=>sum+(r.valorPago || 0),0);
+    const registros   = dados[dia];
+    const totalDia    = registros.reduce((s,r) => s + r.valor, 0);
+    const totalPagoDia= registros.reduce((s,r) => s + (r.valorPago || 0), 0);
 
     const bloco = document.createElement("div");
     bloco.classList.add("dia-bloco");
@@ -50,7 +50,6 @@ function renderizar() {
     const header = document.createElement("div");
     header.classList.add("dia-header");
     if (diasAbertos.has(dia)) header.classList.add("aberto");
-
     header.innerHTML = `
       <span>${dia}</span>
       <span>R$ ${totalDia.toFixed(2).replace('.',',')} / ${totalPagoDia.toFixed(2).replace('.',',')} | ${registros.length} acordos</span>
@@ -64,10 +63,10 @@ function renderizar() {
     tabela.innerHTML = `
       <thead>
         <tr>
-          <th>Data Acordo</th>
+          <th>Data</th>
           <th>Valor</th>
           <th>Parcelas</th>
-          <th>Data Final</th>
+          <th>Vencimento</th>
           <th>Pagamento</th>
           <th>ID</th>
           <th>Ações</th>
@@ -79,19 +78,21 @@ function renderizar() {
     const tbody = tabela.querySelector("tbody");
 
     registros.forEach((reg, index) => {
-      const row = tbody.insertRow();
+      const row       = tbody.insertRow();
       const valorPago = reg.valorPago || 0;
-      const acordoPago = valorPago >= reg.valor;
+      const acordoPago= valorPago >= reg.valor;
 
-      if(acordoPago) row.classList.add("acordo-pago");
+      if (acordoPago) row.classList.add("acordo-pago");
 
       row.insertCell(0).innerText = reg.dataAcordo || "-";
 
       const valorCell = row.insertCell(1);
-      if(valorPago > 0) {
-        valorCell.innerHTML = `R$ ${reg.valor.toFixed(2).replace('.',',')} / <span style="color:#00ffcc;">${valorPago.toFixed(2).replace('.',',')}</span>`;
+      if (acordoPago) {
+        valorCell.innerHTML = `<span style="color:#00ffcc;">R$ ${reg.valor.toFixed(2).replace('.',',')}</span>`;
+      } else if (valorPago > 0) {
+        valorCell.innerHTML = `<span style="color:#ff4d4d;">R$ ${reg.valor.toFixed(2).replace('.',',')}</span> / <span style="color:#00ffcc;">${valorPago.toFixed(2).replace('.',',')}</span>`;
       } else {
-        valorCell.innerText = `R$ ${reg.valor.toFixed(2).replace('.',',')}`;
+        valorCell.innerHTML = `<span style="color:#ff4d4d;">R$ ${reg.valor.toFixed(2).replace('.',',')}</span>`;
       }
 
       row.insertCell(2).innerText = reg.parcelas;
@@ -104,20 +105,20 @@ function renderizar() {
       const btnPagar = document.createElement("button");
       btnPagar.innerText = "Pagar";
       btnPagar.classList.add("btn-pagar");
-      btnPagar.onclick = function(e){
+      btnPagar.onclick = function(e) {
         e.stopPropagation();
         const valorPagar = prompt("Quanto foi pago? (use - para subtrair, 'tudo' para valor total)", "0");
-        if(valorPagar !== null && valorPagar.trim() !== "") {
+        if (valorPagar !== null && valorPagar.trim() !== "") {
           let valorStr = valorPagar.trim().toLowerCase();
-          if(valorStr === "tudo") {
+          if (valorStr === "tudo") {
             reg.valorPago = reg.valor;
             salvarDados(); renderizar(); return;
           }
           valorStr = valorStr.replace(',', '.');
-          let valorNum = parseFloat(valorStr);
-          if(!isNaN(valorNum)) {
+          const valorNum = parseFloat(valorStr);
+          if (!isNaN(valorNum)) {
             reg.valorPago = (reg.valorPago || 0) + valorNum;
-            if(reg.valorPago < 0) reg.valorPago = 0;
+            if (reg.valorPago < 0) reg.valorPago = 0;
             salvarDados(); renderizar();
           } else { alert("Valor inválido!"); }
         }
@@ -127,22 +128,22 @@ function renderizar() {
       const btnExcluir = document.createElement("button");
       btnExcluir.innerText = "Excluir";
       btnExcluir.classList.add("btn-excluir");
-      btnExcluir.onclick = function(e){
+      btnExcluir.onclick = function(e) {
         e.stopPropagation();
         registros.splice(index, 1);
-        if(registros.length === 0){ delete dados[dia]; diasAbertos.delete(dia); }
+        if (registros.length === 0) { delete dados[dia]; diasAbertos.delete(dia); }
         salvarDados(); renderizar();
       };
       acoesCell.appendChild(btnExcluir);
 
-      if(reg.novo) {
+      if (reg.novo) {
         row.classList.add("novo-registro");
         delete reg.novo;
         salvarDados();
       }
     });
 
-    header.onclick = function(){
+    header.onclick = function() {
       if (tabelaWrapper.classList.contains("aberto")) {
         tabelaWrapper.classList.add("fechando");
         header.classList.remove("aberto");
@@ -150,13 +151,13 @@ function renderizar() {
         setTimeout(() => {
           tabelaWrapper.classList.remove("aberto");
           tabelaWrapper.classList.remove("fechando");
-        }, 300);
+        }, 280);
       } else {
         tabelaWrapper.classList.add("aberto");
         header.classList.add("aberto");
         diasAbertos.add(dia);
       }
-    }
+    };
 
     tabelaWrapper.appendChild(tabela);
     bloco.appendChild(header);
@@ -168,16 +169,16 @@ function renderizar() {
 // ===== ADICIONAR =====
 function adicionar() {
   const linha = inputPrincipal.value.trim();
-  if(!linha) return;
+  if (!linha) return;
 
-  const {dia: diaHoje} = getDataHora();
+  const { dia: diaHoje } = getDataHora();
 
   const linhaSemDatas = linha
     .replace(/\d{1,2}\/\d{1,2}(?:\/\d{2,4})?/g, '')
     .replace(/\d+x/gi, '');
 
   const valorMatch = linhaSemDatas.match(/R?\$?\s?(\d+(?:[\.,]\d{3})*[\.,]\d{2}|\d+)/);
-  if(!valorMatch) return alert("Valor inválido");
+  if (!valorMatch) return alert("Valor inválido");
 
   let valorStr = valorMatch[1];
   let valor;
@@ -190,25 +191,25 @@ function adicionar() {
   }
 
   const parcelasMatch = linha.match(/(\d+)x/i);
-  const parcelas = parcelasMatch ? parcelasMatch[1]+"x" : "";
+  const parcelas = parcelasMatch ? parcelasMatch[1] + "x" : "";
 
   const todasDatas = [...linha.matchAll(/(\d{1,2}\/\d{1,2})(?:\/\d{2,4})?/g)]
     .map(m => m[0].split('/').slice(0,2).join('/'));
 
-  if(todasDatas.length === 0) return alert("Data inválida");
+  if (todasDatas.length === 0) return alert("Data inválida");
 
-  let dataAcordo = todasDatas.length >= 2 ? todasDatas[0] : diaHoje;
-  let dataFinal  = todasDatas.length >= 2 ? todasDatas[1] : todasDatas[0];
+  const dataAcordo = todasDatas.length >= 2 ? todasDatas[0] : diaHoje;
+  const dataFinal  = todasDatas.length >= 2 ? todasDatas[1] : todasDatas[0];
 
   const pagamentoMatch = linha.match(/(pix|boleto|deb|débito|debito em conta|parc|parcial|parcelado)/i);
-  if(!pagamentoMatch) return alert("Pagamento inválido");
+  if (!pagamentoMatch) return alert("Pagamento inválido");
   const pagamento = pagamentoMatch[1];
 
   const idMatch = linha.match(/\b(\d{6,})\b/);
-  if(!idMatch) return alert("ID inválido");
+  if (!idMatch) return alert("ID inválido");
   const id = idMatch[0];
 
-  if(!dados[dataAcordo]) dados[dataAcordo] = [];
+  if (!dados[dataAcordo]) dados[dataAcordo] = [];
   dados[dataAcordo].push({ dataAcordo, valor, valorPago: 0, parcelas, dataFinal, pagamento, id, novo: true });
 
   diasAbertos.add(dataAcordo);
@@ -222,17 +223,14 @@ function adicionar() {
 function buscarPorId(id) {
   document.querySelectorAll('.linha-destaque').forEach(el => el.classList.remove('linha-destaque'));
 
-  let encontrou = false;
-
   for (const dia of Object.keys(dados)) {
     const registros = dados[dia];
-    const index = registros.findIndex(r => String(r.id).includes(id));
-    if (index !== -1) {
+    const found = registros.findIndex(r => String(r.id).includes(id));
+    if (found !== -1) {
       diasAbertos.add(dia);
       renderizar();
       setTimeout(() => {
-        const todasLinhas = document.querySelectorAll('tbody tr');
-        for (const row of todasLinhas) {
+        for (const row of document.querySelectorAll('tbody tr')) {
           const cellId = row.cells[5];
           if (cellId && cellId.innerText.includes(id)) {
             row.classList.add('linha-destaque');
@@ -242,27 +240,25 @@ function buscarPorId(id) {
           }
         }
       }, 100);
-      encontrou = true;
-      break;
+      return;
     }
   }
-
-  if (!encontrou) alert(`ID "${id}" não encontrado.`);
+  alert(`ID "${id}" não encontrado.`);
 }
 
 // ===== EVENTOS =====
 document.getElementById('btnAdicionar').addEventListener('click', adicionar);
 
-document.getElementById('btnBuscar').addEventListener('click', function(){
+document.getElementById('btnBuscar').addEventListener('click', function() {
   const busca = inputPrincipal.value.trim();
-  if(busca) buscarPorId(busca);
+  if (busca) buscarPorId(busca);
 });
 
-inputPrincipal.addEventListener('keydown', function(e){
-  if(e.key === 'Enter') adicionar();
+inputPrincipal.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') adicionar();
 });
 
-window.onload = function(){
+window.onload = function() {
   renderizar();
   inputPrincipal.focus();
 };
