@@ -37,8 +37,8 @@ function renderizar() {
   const resumo = document.getElementById('resumoGeral');
   if(resumo) {
     resumo.innerHTML = `
-      <span>📋 <strong>${totalAcordos} / ${totalComPagamento} / ${totalTotalmentePagos}</strong> T/V/Q</span>
-      <span>💰 <strong>R$ ${totalValor.toFixed(2).replace('.',',')} / ${totalPago.toFixed(2).replace('.',',')}</strong></span>
+      <span>📋 <strong class="cor-total">${totalAcordos}</strong> / <strong class="cor-pagamento">${totalComPagamento}</strong> / <strong class="cor-quitado">${totalTotalmentePagos}</strong></span>
+      <span>💰 <strong class="cor-valor">R$ ${totalValor.toFixed(2).replace('.',',')} / ${totalPago.toFixed(2).replace('.',',')}</strong></span>
     `;
   }
 
@@ -200,8 +200,18 @@ form.addEventListener('submit', function(e){
   const valorMatch = linhaSemDatas.match(/R?\$?\s?(\d+(?:[\.,]\d{3})*[\.,]\d{2}|\d+)/);
   if(!valorMatch) return alert("Valor inválido");
 
-  let valorStr = valorMatch[1].replace(/\./g,'').replace(',','.');
-  const valor = parseFloat(valorStr);
+  let valorStr = valorMatch[1];
+  let valor;
+  if (/,\d{2}$/.test(valorStr)) {
+    // Formato BR: 1.234,56 ou 90,00
+    valor = parseFloat(valorStr.replace(/\./g, '').replace(',', '.'));
+  } else if (/\.\d{2}$/.test(valorStr)) {
+    // Formato US: 1,234.56 ou 90.00
+    valor = parseFloat(valorStr.replace(/,/g, ''));
+  } else {
+    // Sem decimal: 90
+    valor = parseFloat(valorStr.replace(/[.,]/g, ''));
+  }
 
   const parcelasMatch = linha.match(/(\d+)x/i);
   const parcelas = parcelasMatch ? parcelasMatch[1]+"x" : "";

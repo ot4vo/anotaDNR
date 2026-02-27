@@ -10,8 +10,7 @@ body {
   padding: 20px;
   color: #fff;
 }
-
-/* --total-- */
+ /* --total--*/
 #resumoGeral {
   display: flex;
   justify-content: space-between;
@@ -28,9 +27,10 @@ body {
   box-sizing: border-box;
 }
 
-#resumoGeral strong {
-  color: #00ffcc;
-}
+#resumoGeral .cor-total    { color: #ff0000; }
+#resumoGeral .cor-pagamento { color: #ffd700; }
+#resumoGeral .cor-quitado  { color: #00ffcc; }
+#resumoGeral .cor-valor    { color: #00ffcc; } 
 
 /* ===== TÍTULO ===== */
 h1 {
@@ -86,15 +86,17 @@ button:hover {
 
 /* ===== BLOCO DO DIA ===== */
 .dia-bloco {
-  width: 100%;
+  width: 100%; /* ou o valor que quiser */
   max-width: 950px;
-  margin: 0 auto 10px auto;
+  margin: 0 auto 15px auto;
   border-radius: 12px;
+  display: center;
 }
 
 /* ===== CABEÇALHO DO DIA ===== */
 .dia-header {
-  width: 733px;
+  width: 730px;
+  height: 13px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -104,13 +106,7 @@ button:hover {
   font-weight: bold;
   font-size: 1em;
   transition: 0.3s;
-  border-radius: 12px;
-  margin-bottom: 0;
-}
-
-.dia-header.aberto {
   border-radius: 12px 12px 0 0;
-  margin-bottom: 0;
 }
 
 .dia-header:hover {
@@ -131,31 +127,37 @@ button:hover {
 /* ===== TABELA DO DIA ===== */
 .dia-tabela {
   width: 100%;
-  overflow: hidden;
+  display: none;
   background: #1f1f1f;
   color: #fff;
-  max-height: 0;
-  opacity: 0;
-  transition: max-height 0.35s ease-out, opacity 0.35s ease-out;
   border-radius: 0 0 12px 12px;
 }
 
 .dia-tabela.aberto {
-  max-height: 2000px;
-  opacity: 1;
+  display: block;
+  animation: fadeIn 0.3s ease;
 }
 
 .dia-tabela.fechando {
-  max-height: 0;
-  opacity: 0;
-  transition: max-height 0.35s ease-in, opacity 0.35s ease-in;
+  display: block;
+  animation: fadeOut 0.3s ease forwards;
 }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-8px); }
+}
+
 
 table {
   width: 100%;
   border-collapse: collapse;
   text-align: center;
-  border-spacing: 0;
 }
 
 th, td {
@@ -169,14 +171,21 @@ th {
   color: #00ffcc;
 }
 
-/* ===== ACORDO TOTALMENTE PAGO ===== */
-.acordo-pago {
-  background-color: #00ffcc22 !important;
-  border-left: 4px solid #00ffcc !important;
+/* ===== BOTÃO EXCLUIR ===== */
+.btn-excluir {
+  background-color: #ff4d4d;
+  color: #121212;
+  padding: 6px 9px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
 }
 
-.acordo-pago td {
-  color: #00ffcc !important;
+.btn-excluir:hover {
+  background-color: #e60000;
+  transform: scale(1.05);
 }
 
 /* ===== BOTÃO PAGAR ===== */
@@ -195,29 +204,6 @@ th {
 .btn-pagar:hover {
   background-color: #00d9b0;
   transform: scale(1.05);
-}
-
-/* ===== BOTÃO EXCLUIR ===== */
-.btn-excluir {
-  background-color: #ff4d4d;
-  color: #121212;
-  padding: 6px 9px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: 0.3s;
-  margin-left: 4px;
-}
-
-.btn-excluir:hover {
-  background-color: #e60000;
-  transform: scale(1.05);
-}
-
-/* ===== COLUNA DE AÇÕES ===== */
-td:last-child {
-  white-space: nowrap;
 }
 
 /* ===== RESPONSIVO ===== */
