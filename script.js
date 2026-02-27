@@ -26,11 +26,9 @@ function parseValor(str) {
   const nVirgulas = (str.match(/,/g)  || []).length;
 
   if (nVirgulas === 1) {
-    // Formato BR: 1.542,10 ou 800,00
     return parseFloat(str.replace(/\./g, '').replace(',', '.'));
   }
   if (nPontos >= 2) {
-    // Dois pontos: 2.861.14 → último ponto é decimal
     const ultimo  = str.lastIndexOf('.');
     const inteiro = str.slice(0, ultimo).replace(/[.,]/g, '');
     const decimal = str.slice(ultimo + 1);
@@ -38,9 +36,7 @@ function parseValor(str) {
   }
   if (nPontos === 1) {
     const partes = str.split('.');
-    // Se parte decimal tem 2 dígitos → decimal americano (ex: 1.50 ou 2861.14)
     if (partes[1].length <= 2) return parseFloat(str);
-    // Senão é separador de milhar (ex: 1.200)
     return parseFloat(str.replace('.', ''));
   }
   return parseFloat(str.replace(/[.,]/g, ''));
@@ -50,10 +46,12 @@ function parseValor(str) {
 const tiposCliente = {
   'merchant': { label: 'Merchant', cor: '#a78bfa' },
   'mer':      { label: 'Merchant', cor: '#a78bfa' },
+  'merc':     { label: 'Merchant', cor: '#a78bfa' },
   'point':    { label: 'Point',    cor: '#60a5fa' },
   'p':        { label: 'Point',    cor: '#60a5fa' },
   'consumer': { label: 'Consumer', cor: '#f97316' },
   'con':      { label: 'Consumer', cor: '#f97316' },
+  'cons':     { label: 'Consumer', cor: '#f97316' },
   'cc':       { label: 'Cartão',   cor: '#fb7185' },
   'cartao':   { label: 'Cartão',   cor: '#fb7185' },
   'cartão':   { label: 'Cartão',   cor: '#fb7185' },
@@ -61,7 +59,7 @@ const tiposCliente = {
 
 function detectarTipo(linha) {
   const sem = linha.replace(/\b(pix|boleto|deb(?:ito)?|débito|debito em conta|parc(?:ial|elado)?)\b/gi, '');
-  const match = sem.match(/\b(merchant|consumer|cartao|cartão|point|mer|con|cc)\b|\bp\b/i);
+  const match = sem.match(/\b(merchant|consumer|cartao|cartão|point|mer|merc|cons|con|cc)\b|\bp\b/i);
   if (!match) return null;
   return tiposCliente[match[0].toLowerCase()] || null;
 }
@@ -231,7 +229,6 @@ function adicionar() {
     .replace(/\d{1,2}\/\d{1,2}(?:\/\d{2,4})?/g, '')
     .replace(/\d+x/gi, '');
 
-  // Captura valor com qualquer combinação de pontos e vírgulas
   const valorMatch = linhaSemDatas.match(/R?\$?\s?(\d+(?:[.,]\d+)*)/);
   if (!valorMatch) return alert("Valor inválido");
 
@@ -273,11 +270,7 @@ function adicionar() {
 function buscarPorId(id) {
   const h1 = document.querySelector('h1');
 
-  document.querySelectorAll('.linha-destaque').forEach(el => {
-    el.classList.remove('linha-destaque');
-    const badge = el.querySelector('.badge-encontrado');
-    if (badge) badge.remove();
-  });
+  document.querySelectorAll('.linha-destaque').forEach(el => el.classList.remove('linha-destaque'));
 
   for (const dia of Object.keys(dados)) {
     const registros = dados[dia];
@@ -290,25 +283,12 @@ function buscarPorId(id) {
         for (const row of document.querySelectorAll('tbody tr')) {
           const cellId = row.cells[5];
           if (cellId && cellId.innerText.includes(id)) {
-
             row.classList.add('linha-destaque');
-
-            const badge = document.createElement('span');
-            badge.className   = 'badge-encontrado';
-            badge.textContent = 'ENCONTRADO';
-            cellId.appendChild(badge);
-
-            setTimeout(() => {
-              badge.classList.add('sumindo');
-              setTimeout(() => badge.remove(), 350);
-            }, 3000);
-
             setTimeout(() => row.classList.remove('linha-destaque'), 3200);
             row.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
             h1.classList.add('busca-achou');
             setTimeout(() => h1.classList.remove('busca-achou'), 4000);
-
             break;
           }
         }
