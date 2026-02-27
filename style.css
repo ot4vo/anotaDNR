@@ -14,7 +14,7 @@ body {
 #resumoGeral {
   display: flex;
   justify-content: space-between;
-  width: 80%;
+  width: 57%;
   max-width: 950px;
   background-color: #1f1f1f;
   border: 1px solid #00ffcc33;
@@ -60,6 +60,7 @@ h1 {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   margin-bottom: 50px;
+  margin-top: 40px;
   position: relative;
   background: linear-gradient(135deg, #00ffcc 0%, #00d9b0 40%, #ffffff 60%, #00ffcc 100%);
   background-size: 200% auto;
@@ -107,7 +108,7 @@ h1::after {
 }
 
 #exemplo {
-  width: min(80%, 900px);
+  width: min(49%, 900px);
   color: #00ffcc8f;
   font-size: 0.7em;
   font-family: 'Arial', monospace;
@@ -131,8 +132,6 @@ form {
   border-radius: 10px;
   overflow: hidden;
 }
-
-
 
 input {
   flex: 1;
@@ -345,9 +344,10 @@ tbody tr:hover td { background-color: #222; }
 #barraAcoes {
   display: flex;
   align-items: center;
-  width: 80%;
+  width: 50%;
   max-width: 900px;
   margin-bottom: 25px;
+  margin-top: 10px;
   border-radius: 10px;
   overflow: hidden;
   background-color: #1f1f1f;
