@@ -1,5 +1,4 @@
-const form = document.getElementById('notaForm');
-const inputLinha = document.getElementById('linha');
+const inputPrincipal = document.getElementById('inputPrincipal');
 const container = document.getElementById('tabelaNotas');
 
 let dados = JSON.parse(localStorage.getItem("acordosPorDia")) || {};
@@ -15,7 +14,6 @@ function getDataHora() {
   const mes = String(agora.getMonth()+1).padStart(2,'0');
   const hora = String(agora.getHours()).padStart(2,'0');
   const minuto = String(agora.getMinutes()).padStart(2,'0');
-
   return {
     dia: `${dia}/${mes}`,
     dataHora: `${dia}/${mes} ${hora}:${minuto}`
@@ -26,7 +24,6 @@ function renderizar() {
   container.innerHTML = "";
   const diasOrdenados = Object.keys(dados).sort().reverse();
 
-  /* ===== TOTAIS GERAIS ===== */
   const todosRegistros = Object.values(dados).flat();
   const totalAcordos = todosRegistros.length;
   const totalComPagamento = todosRegistros.filter(r => (r.valorPago || 0) > 0).length;
@@ -43,7 +40,6 @@ function renderizar() {
   }
 
   diasOrdenados.forEach(dia => {
-
     const registros = dados[dia];
     let totalDia = registros.reduce((sum,r)=>sum+r.valor,0);
     let totalPagoDia = registros.reduce((sum,r)=>sum+(r.valorPago || 0),0);
@@ -60,14 +56,11 @@ function renderizar() {
       <span>R$ ${totalDia.toFixed(2).replace('.',',')} / ${totalPagoDia.toFixed(2).replace('.',',')} | ${registros.length} acordos</span>
     `;
 
-    /* ===== WRAPPER ANIMÁVEL ===== */
     const tabelaWrapper = document.createElement("div");
     tabelaWrapper.classList.add("dia-tabela");
     if (diasAbertos.has(dia)) tabelaWrapper.classList.add("aberto");
 
-    /* ===== TABELA REAL ===== */
     const tabela = document.createElement("table");
-
     tabela.innerHTML = `
       <thead>
         <tr>
@@ -86,7 +79,6 @@ function renderizar() {
     const tbody = tabela.querySelector("tbody");
 
     registros.forEach((reg, index) => {
-
       const row = tbody.insertRow();
       const valorPago = reg.valorPago || 0;
       const acordoPago = valorPago >= reg.valor;
@@ -116,30 +108,20 @@ function renderizar() {
         e.stopPropagation();
         const valorPagar = prompt("Quanto foi pago? (use - para subtrair, 'tudo' para valor total)", "0");
         if(valorPagar !== null && valorPagar.trim() !== "") {
-
           let valorStr = valorPagar.trim().toLowerCase();
-
           if(valorStr === "tudo") {
             reg.valorPago = reg.valor;
-            salvarDados();
-            renderizar();
-            return;
+            salvarDados(); renderizar(); return;
           }
-
           valorStr = valorStr.replace(',', '.');
           let valorNum = parseFloat(valorStr);
-
           if(!isNaN(valorNum)) {
             reg.valorPago = (reg.valorPago || 0) + valorNum;
             if(reg.valorPago < 0) reg.valorPago = 0;
-            salvarDados();
-            renderizar();
-          } else {
-            alert("Valor inválido!");
-          }
+            salvarDados(); renderizar();
+          } else { alert("Valor inválido!"); }
         }
       };
-
       acoesCell.appendChild(btnPagar);
 
       const btnExcluir = document.createElement("button");
@@ -148,14 +130,9 @@ function renderizar() {
       btnExcluir.onclick = function(e){
         e.stopPropagation();
         registros.splice(index, 1);
-        if(registros.length === 0){
-          delete dados[dia];
-          diasAbertos.delete(dia);
-        }
-        salvarDados();
-        renderizar();
+        if(registros.length === 0){ delete dados[dia]; diasAbertos.delete(dia); }
+        salvarDados(); renderizar();
       };
-
       acoesCell.appendChild(btnExcluir);
 
       if(reg.novo) {
@@ -163,18 +140,21 @@ function renderizar() {
         delete reg.novo;
         salvarDados();
       }
-
     });
 
-    /* ===== CLICK SUAVE ===== */
     header.onclick = function(){
-      tabelaWrapper.classList.toggle("aberto");
-      header.classList.toggle("aberto");
-
       if (tabelaWrapper.classList.contains("aberto")) {
-        diasAbertos.add(dia);
-      } else {
+        tabelaWrapper.classList.add("fechando");
+        header.classList.remove("aberto");
         diasAbertos.delete(dia);
+        setTimeout(() => {
+          tabelaWrapper.classList.remove("aberto");
+          tabelaWrapper.classList.remove("fechando");
+        }, 300);
+      } else {
+        tabelaWrapper.classList.add("aberto");
+        header.classList.add("aberto");
+        diasAbertos.add(dia);
       }
     }
 
@@ -182,13 +162,12 @@ function renderizar() {
     bloco.appendChild(header);
     bloco.appendChild(tabelaWrapper);
     container.appendChild(bloco);
-
   });
 }
 
-form.addEventListener('submit', function(e){
-  e.preventDefault();
-  const linha = inputLinha.value.trim();
+// ===== ADICIONAR =====
+function adicionar() {
+  const linha = inputPrincipal.value.trim();
   if(!linha) return;
 
   const {dia: diaHoje} = getDataHora();
@@ -203,13 +182,10 @@ form.addEventListener('submit', function(e){
   let valorStr = valorMatch[1];
   let valor;
   if (/,\d{2}$/.test(valorStr)) {
-    // Formato BR: 1.234,56 ou 90,00
     valor = parseFloat(valorStr.replace(/\./g, '').replace(',', '.'));
   } else if (/\.\d{2}$/.test(valorStr)) {
-    // Formato US: 1,234.56 ou 90.00
     valor = parseFloat(valorStr.replace(/,/g, ''));
   } else {
-    // Sem decimal: 90
     valor = parseFloat(valorStr.replace(/[.,]/g, ''));
   }
 
@@ -233,27 +209,60 @@ form.addEventListener('submit', function(e){
   const id = idMatch[0];
 
   if(!dados[dataAcordo]) dados[dataAcordo] = [];
-
-  dados[dataAcordo].push({
-    dataAcordo,
-    valor,
-    valorPago: 0,
-    parcelas,
-    dataFinal,
-    pagamento,
-    id,
-    novo: true
-  });
+  dados[dataAcordo].push({ dataAcordo, valor, valorPago: 0, parcelas, dataFinal, pagamento, id, novo: true });
 
   diasAbertos.add(dataAcordo);
   salvarDados();
   renderizar();
+  inputPrincipal.value = "";
+  inputPrincipal.focus();
+}
 
-  inputLinha.value = "";
-  inputLinha.focus();
+// ===== BUSCA POR ID =====
+function buscarPorId(id) {
+  document.querySelectorAll('.linha-destaque').forEach(el => el.classList.remove('linha-destaque'));
+
+  let encontrou = false;
+
+  for (const dia of Object.keys(dados)) {
+    const registros = dados[dia];
+    const index = registros.findIndex(r => String(r.id).includes(id));
+    if (index !== -1) {
+      diasAbertos.add(dia);
+      renderizar();
+      setTimeout(() => {
+        const todasLinhas = document.querySelectorAll('tbody tr');
+        for (const row of todasLinhas) {
+          const cellId = row.cells[5];
+          if (cellId && cellId.innerText.includes(id)) {
+            row.classList.add('linha-destaque');
+            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => row.classList.remove('linha-destaque'), 2500);
+            break;
+          }
+        }
+      }, 100);
+      encontrou = true;
+      break;
+    }
+  }
+
+  if (!encontrou) alert(`ID "${id}" não encontrado.`);
+}
+
+// ===== EVENTOS =====
+document.getElementById('btnAdicionar').addEventListener('click', adicionar);
+
+document.getElementById('btnBuscar').addEventListener('click', function(){
+  const busca = inputPrincipal.value.trim();
+  if(busca) buscarPorId(busca);
+});
+
+inputPrincipal.addEventListener('keydown', function(e){
+  if(e.key === 'Enter') adicionar();
 });
 
 window.onload = function(){
   renderizar();
-  inputLinha.focus();
+  inputPrincipal.focus();
 };

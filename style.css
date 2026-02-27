@@ -14,12 +14,12 @@ body {
 #resumoGeral {
   display: flex;
   justify-content: space-between;
-  width: 60%;
+  width: 80%;
   max-width: 950px;
   background-color: #1f1f1f;
   border: 1px solid #00ffcc33;
   border-radius: 12px;
-  padding: 14px 24px;
+  padding: 9px 24px;
   margin-bottom: 20px;
   margin-top: -10px;
   font-size: 0.95em;
@@ -56,6 +56,8 @@ form {
   overflow: hidden;
 }
 
+
+
 input {
   flex: 1;
   padding: 14px;
@@ -86,7 +88,7 @@ button:hover {
 
 /* ===== BLOCO DO DIA ===== */
 .dia-bloco {
-  width: 100%; /* ou o valor que quiser */
+  width: 100%;
   max-width: 950px;
   margin: 0 auto 15px auto;
   border-radius: 12px;
@@ -135,22 +137,22 @@ button:hover {
 
 .dia-tabela.aberto {
   display: block;
-  animation: fadeIn 0.3s ease;
+  animation: slideDown 0.3s ease forwards;
 }
 
 .dia-tabela.fechando {
   display: block;
-  animation: fadeOut 0.3s ease forwards;
+  animation: slideUp 0.3s ease forwards;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0); }
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-12px); max-height: 0; }
+  to   { opacity: 1; transform: translateY(0);     max-height: 2000px; }
 }
 
-@keyframes fadeOut {
-  from { opacity: 1; transform: translateY(0); }
-  to   { opacity: 0; transform: translateY(-8px); }
+@keyframes slideUp {
+  from { opacity: 1; transform: translateY(0);      max-height: 2000px; }
+  to   { opacity: 0; transform: translateY(-12px);  max-height: 0; }
 }
 
 
@@ -247,4 +249,84 @@ th {
 
 .novo-registro {
   animation: slideUpFade 0.5s ease forwards;
+}
+
+/* ===== ACORDO PAGO ===== */
+.acordo-pago td {
+  color: #00ffcc;
+  background-color: #00ffcc0a;
+}
+
+/* ===== BARRA DE AÇÕES (busca + adicionar) ===== */
+#barraAcoes {
+  display: flex;
+  align-items: center;
+  width: 80%;
+  max-width: 900px;
+  margin-bottom: 25px;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #1f1f1f;
+}
+
+#inputPrincipal {
+  flex: 1;
+  padding: 14px 16px;
+  border: none;
+  font-size: 1em;
+  background-color: #1f1f1f;
+  color: #fff;
+  outline: none;
+}
+
+#inputPrincipal::placeholder { color: #aaa; }
+
+#btnAdicionar {
+  padding: 14px 18px;
+  border: none;
+  border-left: 1px solid #ffffff15;
+  background: #00ffcc;
+  color: #121212;
+  font-weight: bold;
+  font-size: 0.88em;
+  cursor: pointer;
+  transition: 0.3s;
+  white-space: nowrap;
+}
+
+#btnAdicionar:hover {
+  background: #00d9b0;
+  transform: scale(1.03);
+}
+
+#btnBuscar {
+  padding: 14px 16px;
+  font-size: 1.2em;
+  border: none;
+  border-left: 1px solid #ffffff15;
+  background: #1f1f1f;
+  color: #00ffcc;
+  font-weight: bold;
+  font-size: 0.88em;
+  cursor: pointer;
+  transition: 0.3s;
+  white-space: nowrap;
+}
+
+#btnBuscar:hover {
+  background: #00ffcc22;
+  transform: scale(1.03);
+}
+
+/* ===== DESTAQUE DE BUSCA ===== */
+@keyframes brilhoDestaque {
+  0%   { background-color: transparent; box-shadow: none; }
+  20%  { background-color: #00ffcc25; box-shadow: inset 0 0 12px #00ffcc44; }
+  50%  { background-color: #00ffcc18; box-shadow: inset 0 0 20px #00ffcc55; }
+  80%  { background-color: #00ffcc10; box-shadow: inset 0 0 8px #00ffcc22; }
+  100% { background-color: transparent; box-shadow: none; }
+}
+
+.linha-destaque td {
+  animation: brilhoDestaque 2.5s ease forwards;
 }
