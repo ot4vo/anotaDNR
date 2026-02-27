@@ -428,3 +428,92 @@ tbody tr:hover td { background-color: #222; }
   line-height: 1;
   margin-top: 3px;
 }
+
+/* ===== TOOLTIP ===== */
+/* Cole no final do seu style.css */
+
+[data-tooltip] {
+  position: relative;
+  cursor: default;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) scale(0.9);
+  background: #1a1a1a;
+  border: 1px solid #00ffcc33;
+  color: #e2e2ee;
+  font-size: 0.75em;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  padding: 6px 10px;
+  border-radius: 7px;
+  box-shadow: 0 4px 20px #00000066, 0 0 12px #00ffcc11;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 100;
+}
+
+[data-tooltip]:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+/* ===== EXEMPLO COM TOOLTIP ===== */
+/* Cole no final do seu style.css (junto com o tooltip.css anterior) */
+
+#exemplo {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.ex-parte {
+  position: relative;
+  cursor: help;
+  color: #00ffcc8f;
+  font-size: 1em;
+  font-family: 'Arial', monospace;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  padding: 1px 3px;
+  border-radius: 3px;
+}
+
+.ex-parte:hover {
+  color: #00ffccdd;
+  background: #00ffcc0a;
+}
+
+.ex-parte::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%) scale(0.9);
+  background: #1a1a1a;
+  border: 1px solid #00ffcc33;
+  color: #e2e2ee;
+  font-size: 1.1em; /* relativo ao .ex-parte, fica ~0.77em total */
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  padding: 6px 10px;
+  border-radius: 7px;
+  box-shadow: 0 4px 20px #00000066, 0 0 12px #00ffcc11;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 100;
+}
+
+.ex-parte:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}

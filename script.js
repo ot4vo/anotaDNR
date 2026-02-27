@@ -42,6 +42,29 @@ function parseValor(str) {
   return parseFloat(str.replace(/[.,]/g, ''));
 }
 
+// ===== STATUS DO VENCIMENTO =====
+function getStatus(dataFinal, acordoPago) {
+  if (acordoPago) {
+    return { label: 'Pago', cor: '#00ffcc' };
+  }
+
+  // Converte "dd/mm" para Date comparável (ano atual)
+  const partes = dataFinal.split('/');
+  if (partes.length < 2) return null;
+
+  const agora = new Date();
+  const anoAtual = agora.getFullYear();
+  const vencimento = new Date(anoAtual, parseInt(partes[1]) - 1, parseInt(partes[0]));
+
+  // Zera horas para comparar só a data
+  const hoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
+
+  if (vencimento < hoje) {
+    return { label: 'Quebra', cor: '#ff4d4d' };
+  }
+  return { label: 'Em curso', cor: '#ffd700' };
+}
+
 // ===== TIPO DE CLIENTE =====
 const tiposCliente = {
   'merchant': { label: 'Merchant', cor: '#a78bfa' },
@@ -78,8 +101,20 @@ function renderizar() {
   const resumo = document.getElementById('resumoGeral');
   if (resumo) {
     resumo.innerHTML = `
-      <span>📋 <strong class="cor-total">${totalAcordos}</strong> / <strong class="cor-pagamento">${totalComPagamento}</strong> / <strong class="cor-quitado">${totalTotalmentePagos}</strong></span>
-      <span>💰 <strong class="cor-total">R$ ${totalValor.toFixed(2).replace('.',',')}</strong> / <strong class="cor-quitado">R$ ${totalPago.toFixed(2).replace('.',',')}</strong></span>
+      <span>
+        📋
+        <strong class="cor-total"    data-tooltip="Total de acordos registrados">${totalAcordos}</strong>
+        /
+        <strong class="cor-pagamento" data-tooltip="Acordos com pagamento parcial">${totalComPagamento}</strong>
+        /
+        <strong class="cor-quitado"  data-tooltip="Acordos totalmente quitados">${totalTotalmentePagos}</strong>
+      </span>
+      <span>
+        💰
+        <strong class="cor-total"   data-tooltip="Valor total de todos os acordos">R$ ${totalValor.toFixed(2).replace('.',',')}</strong>
+        /
+        <strong class="cor-quitado" data-tooltip="Total já recebido">R$ ${totalPago.toFixed(2).replace('.',',')}</strong>
+      </span>
     `;
   }
 
@@ -130,6 +165,7 @@ function renderizar() {
 
       row.insertCell(0).innerText = reg.dataAcordo || "-";
 
+      // ===== VALOR + TIPO =====
       const valorCell = row.insertCell(1);
       let valorHtml = '';
 
@@ -144,11 +180,19 @@ function renderizar() {
       if (reg.tipo) {
         valorHtml += `<br><span class="badge-tipo" style="color:${reg.tipo.cor};">${reg.tipo.label}</span>`;
       }
-
       valorCell.innerHTML = valorHtml;
 
       row.insertCell(2).innerText = reg.parcelas;
-      row.insertCell(3).innerText = reg.dataFinal;
+
+      // ===== VENCIMENTO + STATUS =====
+      const vencCell = row.insertCell(3);
+      const status = getStatus(reg.dataFinal, acordoPago);
+      let vencHtml = reg.dataFinal;
+      if (status) {
+        vencHtml += `<br><span class="badge-tipo" style="color:${status.cor};">${status.label}</span>`;
+      }
+      vencCell.innerHTML = vencHtml;
+
       row.insertCell(4).innerText = reg.pagamento;
       row.insertCell(5).innerText = reg.id;
 

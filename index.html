@@ -1,4 +1,6 @@
-<!-- TO ADD: Tipo cliente(merchant, etc)/Quebras--> 
+<!-- TO ADD: 
+ adicionar data pagament, ex 12/03 antes = em curso, pago, passou = quebra.
+ expliar as informaçoes, por popup que explica oq é cada coisa--> 
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -9,9 +11,16 @@
 </head>
 <body>
   <h1>Meus Acordos</h1>
-  <div id="exemplo">
-    <p>Ex: (01/01) R$100 12x 00/00 0000000 client</p>
-  </div>
+
+<div id="exemplo">
+  <span class="ex-parte" data-tooltip="Data do acordo — opcional, padrão é hoje">(01/01)</span>
+  <span class="ex-parte" data-tooltip="Valor do acordo">R$100</span>
+  <span class="ex-parte" data-tooltip="Forma de pagamento: pix, boleto, deb, parc...">pix</span>
+  <span class="ex-parte" data-tooltip="Parcelas — opcional">12x</span>
+  <span class="ex-parte" data-tooltip="Data de vencimento">00/00</span>
+  <span class="ex-parte" data-tooltip="ID do cliente — mínimo 6 dígitos">0000000</span>
+  <span class="ex-parte" data-tooltip="Tipo de cliente — opcional: mer, p, con, cc">client</span>
+</div>
 
   <div id="barraAcoes">
     <input type="text" id="inputPrincipal" placeholder="Adicionar ou buscar por ID...">
