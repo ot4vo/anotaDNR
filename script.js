@@ -20,6 +20,52 @@ function getDataHora() {
   };
 }
 
+// ===== PARSER DE VALOR =====
+function parseValor(str) {
+  const nPontos   = (str.match(/\./g) || []).length;
+  const nVirgulas = (str.match(/,/g)  || []).length;
+
+  if (nVirgulas === 1) {
+    // Formato BR: 1.542,10 ou 800,00
+    return parseFloat(str.replace(/\./g, '').replace(',', '.'));
+  }
+  if (nPontos >= 2) {
+    // Dois pontos: 2.861.14 → último ponto é decimal
+    const ultimo  = str.lastIndexOf('.');
+    const inteiro = str.slice(0, ultimo).replace(/[.,]/g, '');
+    const decimal = str.slice(ultimo + 1);
+    return parseFloat(inteiro + '.' + decimal);
+  }
+  if (nPontos === 1) {
+    const partes = str.split('.');
+    // Se parte decimal tem 2 dígitos → decimal americano (ex: 1.50 ou 2861.14)
+    if (partes[1].length <= 2) return parseFloat(str);
+    // Senão é separador de milhar (ex: 1.200)
+    return parseFloat(str.replace('.', ''));
+  }
+  return parseFloat(str.replace(/[.,]/g, ''));
+}
+
+// ===== TIPO DE CLIENTE =====
+const tiposCliente = {
+  'merchant': { label: 'Merchant', cor: '#a78bfa' },
+  'mer':      { label: 'Merchant', cor: '#a78bfa' },
+  'point':    { label: 'Point',    cor: '#60a5fa' },
+  'p':        { label: 'Point',    cor: '#60a5fa' },
+  'consumer': { label: 'Consumer', cor: '#f97316' },
+  'con':      { label: 'Consumer', cor: '#f97316' },
+  'cc':       { label: 'Cartão',   cor: '#fb7185' },
+  'cartao':   { label: 'Cartão',   cor: '#fb7185' },
+  'cartão':   { label: 'Cartão',   cor: '#fb7185' },
+};
+
+function detectarTipo(linha) {
+  const sem = linha.replace(/\b(pix|boleto|deb(?:ito)?|débito|debito em conta|parc(?:ial|elado)?)\b/gi, '');
+  const match = sem.match(/\b(merchant|consumer|cartao|cartão|point|mer|con|cc)\b|\bp\b/i);
+  if (!match) return null;
+  return tiposCliente[match[0].toLowerCase()] || null;
+}
+
 function renderizar() {
   container.innerHTML = "";
   const diasOrdenados = Object.keys(dados).sort().reverse();
@@ -87,13 +133,21 @@ function renderizar() {
       row.insertCell(0).innerText = reg.dataAcordo || "-";
 
       const valorCell = row.insertCell(1);
+      let valorHtml = '';
+
       if (acordoPago) {
-        valorCell.innerHTML = `<span style="color:#00ffcc;">R$ ${reg.valor.toFixed(2).replace('.',',')}</span>`;
+        valorHtml = `<span style="color:#00ffcc;">R$ ${reg.valor.toFixed(2).replace('.',',')}</span>`;
       } else if (valorPago > 0) {
-        valorCell.innerHTML = `<span style="color:#ff4d4d;">R$ ${reg.valor.toFixed(2).replace('.',',')}</span> / <span style="color:#00ffcc;">${valorPago.toFixed(2).replace('.',',')}</span>`;
+        valorHtml = `<span style="color:#ff4d4d;">R$ ${reg.valor.toFixed(2).replace('.',',')}</span> / <span style="color:#00ffcc;">${valorPago.toFixed(2).replace('.',',')}</span>`;
       } else {
-        valorCell.innerHTML = `<span style="color:#ff4d4d;">R$ ${reg.valor.toFixed(2).replace('.',',')}</span>`;
+        valorHtml = `<span style="color:#ff4d4d;">R$ ${reg.valor.toFixed(2).replace('.',',')}</span>`;
       }
+
+      if (reg.tipo) {
+        valorHtml += `<br><span class="badge-tipo" style="color:${reg.tipo.cor};">${reg.tipo.label}</span>`;
+      }
+
+      valorCell.innerHTML = valorHtml;
 
       row.insertCell(2).innerText = reg.parcelas;
       row.insertCell(3).innerText = reg.dataFinal;
@@ -177,18 +231,12 @@ function adicionar() {
     .replace(/\d{1,2}\/\d{1,2}(?:\/\d{2,4})?/g, '')
     .replace(/\d+x/gi, '');
 
-  const valorMatch = linhaSemDatas.match(/R?\$?\s?(\d+(?:[\.,]\d{3})*[\.,]\d{2}|\d+)/);
+  // Captura valor com qualquer combinação de pontos e vírgulas
+  const valorMatch = linhaSemDatas.match(/R?\$?\s?(\d+(?:[.,]\d+)*)/);
   if (!valorMatch) return alert("Valor inválido");
 
-  let valorStr = valorMatch[1];
-  let valor;
-  if (/,\d{2}$/.test(valorStr)) {
-    valor = parseFloat(valorStr.replace(/\./g, '').replace(',', '.'));
-  } else if (/\.\d{2}$/.test(valorStr)) {
-    valor = parseFloat(valorStr.replace(/,/g, ''));
-  } else {
-    valor = parseFloat(valorStr.replace(/[.,]/g, ''));
-  }
+  const valor = parseValor(valorMatch[1]);
+  if (isNaN(valor) || valor <= 0) return alert("Valor inválido");
 
   const parcelasMatch = linha.match(/(\d+)x/i);
   const parcelas = parcelasMatch ? parcelasMatch[1] + "x" : "";
@@ -209,8 +257,10 @@ function adicionar() {
   if (!idMatch) return alert("ID inválido");
   const id = idMatch[0];
 
+  const tipo = detectarTipo(linha);
+
   if (!dados[dataAcordo]) dados[dataAcordo] = [];
-  dados[dataAcordo].push({ dataAcordo, valor, valorPago: 0, parcelas, dataFinal, pagamento, id, novo: true });
+  dados[dataAcordo].push({ dataAcordo, valor, valorPago: 0, parcelas, dataFinal, pagamento, id, tipo, novo: true });
 
   diasAbertos.add(dataAcordo);
   salvarDados();
@@ -221,7 +271,13 @@ function adicionar() {
 
 // ===== BUSCA POR ID =====
 function buscarPorId(id) {
-  document.querySelectorAll('.linha-destaque').forEach(el => el.classList.remove('linha-destaque'));
+  const h1 = document.querySelector('h1');
+
+  document.querySelectorAll('.linha-destaque').forEach(el => {
+    el.classList.remove('linha-destaque');
+    const badge = el.querySelector('.badge-encontrado');
+    if (badge) badge.remove();
+  });
 
   for (const dia of Object.keys(dados)) {
     const registros = dados[dia];
@@ -229,13 +285,30 @@ function buscarPorId(id) {
     if (found !== -1) {
       diasAbertos.add(dia);
       renderizar();
+
       setTimeout(() => {
         for (const row of document.querySelectorAll('tbody tr')) {
           const cellId = row.cells[5];
           if (cellId && cellId.innerText.includes(id)) {
+
             row.classList.add('linha-destaque');
+
+            const badge = document.createElement('span');
+            badge.className   = 'badge-encontrado';
+            badge.textContent = 'ENCONTRADO';
+            cellId.appendChild(badge);
+
+            setTimeout(() => {
+              badge.classList.add('sumindo');
+              setTimeout(() => badge.remove(), 350);
+            }, 3000);
+
+            setTimeout(() => row.classList.remove('linha-destaque'), 3200);
             row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            setTimeout(() => row.classList.remove('linha-destaque'), 2500);
+
+            h1.classList.add('busca-achou');
+            setTimeout(() => h1.classList.remove('busca-achou'), 4000);
+
             break;
           }
         }

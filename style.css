@@ -414,3 +414,17 @@ tbody tr:hover td { background-color: #222; }
 .linha-destaque td {
   animation: brilhoDestaque 2.5s ease forwards;
 }
+
+
+/* ===== BADGE TIPO DE CLIENTE ===== */
+
+.badge-tipo {
+  display: inline-block;
+  font-size: 0.7em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  line-height: 1;
+  margin-top: 3px;
+}
