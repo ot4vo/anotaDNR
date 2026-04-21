@@ -1,38 +1,68 @@
-<!-- TO ADD: 
- adicionar data pagament, ex 12/03 antes = em curso, pago, passou = quebra.
- expliar as informaçoes, por popup que explica oq é cada coisa--> 
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta charset="UTF-8">
-  <title>Anotações</title>
+  <title>Acordos</title>
+  <link rel="icon" type="image/png" href="/logo/dnr.png">
   <link rel="stylesheet" href="style.css">
 </head>
+</footer>
 <body>
-  <h1>Meus Acordos</h1>
 
-<div id="exemplo">
-  <text>Exemplo:</text>
-  <span class="ex-parte" data-tooltip="Data do acordo — opcional, padrão é hoje">(01/01)</span>
-  <span class="ex-parte" data-tooltip="Valor do acordo">R$100</span>
-  <span class="ex-parte" data-tooltip="Forma de pagamento: pix, boleto, deb, parc...">pix</span>
-  <span class="ex-parte" data-tooltip="Parcelas — opcional">12x</span>
-  <span class="ex-parte" data-tooltip="Data de vencimento">01/01</span>
-  <span class="ex-parte" data-tooltip="ID do cliente — mínimo 6 dígitos">0000000</span>
-  <span class="ex-parte" data-tooltip="Tipo de cliente — opcional: mer, point, cons, cartão">client</span>
-</div>
-
-  <div id="barraAcoes">
-    <input type="text" id="inputPrincipal" placeholder="Adicionar ou buscar por ID...">
-    <button type="button" id="btnBuscar">🔍</button>
-    <button type="button" id="btnAdicionar">ADICIONAR</button>
-    
+  <div id="telaLogin">
+    <div class="login-box">
+      <h2 class="login-titulo">AnotaDNR</h2>
+      <p class="login-sub">Faça login para acessar seus dados</p>
+      <div id="loginForm">
+        <input type="email" id="loginEmail" placeholder="E-mail" autocomplete="email">
+        <input type="password" id="loginSenha" placeholder="Senha" autocomplete="current-password">
+        <button id="btnLogin">Entrar</button>
+        <button id="btnIrCadastro" class="btn-secundario">Criar conta</button>
+        <p id="loginErro" class="erro-msg"></p>
+      </div>
+      <div id="cadastroForm" style="display:none;">
+        <input type="email" id="cadEmail" placeholder="E-mail" autocomplete="email">
+        <input type="password" id="cadSenha" placeholder="Senha (mín. 6 caracteres)" autocomplete="new-password">
+        <input type="password" id="cadSenha2" placeholder="Confirmar senha" autocomplete="new-password">
+        <button id="btnCadastrar">Cadastrar</button>
+        <button id="btnIrLogin" class="btn-secundario">Já tenho conta</button>
+        <p id="cadErro" class="erro-msg"></p>
+      </div>
+    </div>
   </div>
 
-  <div id="resumoGeral"></div>
-  <div id="tabelaNotas"></div>
+  <div id="topBar" style="display:none;">
+    <button id="btnTema">🎨</button>
+    <span id="userEmail"></span>
+    <button id="btnSair">Sair</button>
+  </div>
 
-  <script src="script.js"></script>
+  <div id="conteudo" style="display:none;">
+    <h1 data-text="Meus Acordos">Meus Acordos</h1>
+    <div id="exemplo">
+      <span class="ex-parte">Ex:</span>
+      <span class="ex-parte" data-tooltip="Data do acordo — opcional, padrão é hoje">(01/01)</span>
+      <span class="ex-parte" data-tooltip="Valor do acordo">R$100</span>
+      <span class="ex-parte" data-tooltip="Forma de pagamento: pix, boleto, deb, parc...">pix</span>
+      <span class="ex-parte" data-tooltip="Parcelas — opcional">12x</span>
+      <span class="ex-parte" data-tooltip="Data de vencimento">01/01</span>
+      <span class="ex-parte" data-tooltip="ID do cliente — mínimo 6 dígitos">0000000</span>
+      <span class="ex-parte" data-tooltip="Tipo de cliente — opcional: mer, point, cons, cartão">client</span>
+    </div>
+    <div id="barraAcoes">
+      <input type="text" id="inputPrincipal" placeholder="Adicionar ou buscar por ID...">
+      <button type="button" id="btnBuscar">🔍</button>
+      <button type="button" id="btnAdicionar">ADICIONAR</button>
+    </div>
+    <div id="resumoGeral"></div>
+    <div id="tabelaNotas"></div>
+  </div>
+
+  <div id="konami-hint"></div>
+
+  <footer id="rodape">Feito por Otávio &copy; 2026</footer>
+
+  <script type="module" src="script.js"></script>
 </body>
 </html>
